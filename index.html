@@ -30,24 +30,31 @@
 
   app.controller('myCtrl', function($scope, $element){
 
-    $scope.window = window;
+    let myWindow = window;
 
     $scope.stuff = {
       objects: [],
       functions: [],
-      strings: []
+      strings: [],
+      numbers: []
     }
 
-    Object.keys($scope.window).map(function(property, index){
+    Object.keys(myWindow).map(function(property, index){
 
-      if ($scope.window[property] != null) {
+      //console.log(index, myWindow[property]);
 
-        if((typeof $scope.window[property]) == 'object'){
-          $scope.stuff.objects.push($scope.window[property]);
+      if (myWindow[property] != null) {
+
+        if((typeof myWindow[property]) == 'object'){
+          $scope.stuff.objects.push(myWindow[property]);
         }
 
-        if((typeof $scope.window[property]) == 'function'){
-          $scope.stuff.functions.push($scope.window[property]);
+        if((typeof myWindow[property]) == 'function'){
+          $scope.stuff.functions.push(myWindow[property]);
+        }
+
+        if((typeof myWindow[property]) == 'string'){
+          $scope.stuff.strings.push(myWindow[property]);
         }
 
       }
@@ -55,41 +62,46 @@
     });
 
 
-    function printPrototype(obj, i) {
-      var n = Number(i || 0);
-      var indent = Array(2 + n).join("-");
 
-      for(var key in obj) {
-        if(obj.hasOwnProperty(key)) {
-          console.log(indent, key, ": ", obj[key]);
-        }
-      }
-
-      if(obj) {
-        if(Object.getPrototypeOf) {
-          printPrototype(Object.getPrototypeOf(obj), n + 1);
-        } else if(obj.__proto__) {
-          printPrototype(obj.__proto__, n + 1);
-        }
-      }
-    }
-
-    printPrototype(window);
+    let list = angular.element('<ul>');
 
     Object.keys($scope.stuff.objects).map(function(property, index){
-      //console.log($scope.stuff.objects[property]);
-      // console.log($scope.stuff.objects[property].constructor);
-      // console.log($scope.stuff.objects[property].constructor.name);
+
+      let item = angular.element('<li>').text($scope.stuff.objects[property]);
+
+      let sublist = angular.element('<ul>');
+
+      for (var prop in $scope.stuff.objects[property]) {
+
+        let current = $scope.stuff.objects[property][prop];
+
+        if(typeof current == 'function' || typeof current == 'number' || typeof current == 'string'){
+          let temp =current.toString();
+          var val = angular.element(typeof current == 'function' ? '<code>': '<span>').addClass('breakcode').text(temp);
+        }
+        if(typeof current == 'boolean' || typeof current == 'object'){
+          let temp = current;
+          var val = angular.element('<span>').addClass().text(temp);
+        }
+        if(current === null){
+          let temp = current;
+          var val = angular.element('<span>').text('null');
+        }
+
+        sublist.append(angular.element('<li>').text(prop + ' : ').append(val));
+
+
+      }
+
+      item.append(sublist);
+
+      list.append(item).append(angular.element('<hr>'));
+
+
     });
 
-    // //let functionsList = angular.element('<ul>');
-    // Object.keys($scope.stuff.functions).map(function(property, index){
-    //   let currentFunction = $scope.stuff.functions[property].toString();
-    //   //let currentFunctionBody = currentFunction.slice(currentFunction.indexOf("{[") + 1, currentFunction.lastIndexOf("]}"));
-    //   // functionsList.append(angular.element('<li>').text(currentFunction));
-    // });
+    $('#myList').append(list);
 
-    // $element.append(functionsList);
 
   });
 
@@ -114,7 +126,6 @@
       </li>
     </ul>
 
-    <!-- Tab panes -->
     <div class="tab-content m-t-1">
       <div class="tab-pane active" id="home" role="tabpanel">
 
@@ -140,20 +151,10 @@
       </div>
       <div class="tab-pane" id="profile" role="tabpanel">
 
-        <div class="table-responsive">
-          <table class="table table-hover table-condensed table-bordered">
-            <thead class="thead-default">
-              <tr>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="object in stuff.objects track by $index">
-                <td ng-bind="object"></td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="" id="myList">
+
         </div>
+
 
       </div>
     </div>
